@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { BrigadezLogo } from "@/components/brigadez-logo"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -17,7 +18,7 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
       <div className="w-full max-w-2xl text-center space-y-8">
         <div className="space-y-4">
-          <h1 className="text-5xl font-bold tracking-tight text-foreground">Brigadez PMS</h1>
+          <BrigadezLogo className="h-16 mx-auto" />
           <p className="text-xl text-muted-foreground">Complete project management for your business</p>
         </div>
 

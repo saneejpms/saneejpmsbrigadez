@@ -26,10 +26,12 @@ import {
   LogOut,
   User,
   UserCog,
+  Activity,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { BrigadezLogo } from "@/components/brigadez-logo"
 
 const menuItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -41,6 +43,7 @@ const menuItems = [
   { title: "Schedules", icon: Calendar, href: "/dashboard/schedules" },
   { title: "Drive Files", icon: FolderOpen, href: "/dashboard/drive-files" },
   { title: "Users", icon: UserCog, href: "/dashboard/users" },
+  { title: "Diagnostics", icon: Activity, href: "/dashboard/diagnostics" },
 ]
 
 export function AppSidebar() {
@@ -57,7 +60,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <h2 className="text-lg font-semibold">Brigadez PMS</h2>
+        <BrigadezLogo className="h-8" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { ArrowLeft, Pencil, Calendar, DollarSign, User } from "lucide-react"
+import { ArrowLeft, Pencil, Calendar, DollarSign, User, Upload } from "lucide-react"
+import { FileUpload } from "@/components/dashboard/file-upload"
+import { EnquiryFiles } from "@/components/dashboard/enquiry-files"
 
 export default async function EnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -18,7 +20,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     redirect("/auth/login")
   }
 
-  const [enquiryResult, materialsResult, commercialsResult, expensesResult] = await Promise.all([
+  const [enquiryResult, materialsResult, commercialsResult, expensesResult, filesResult] = await Promise.all([
     supabase
       .from("enquiries")
       .select(`
@@ -36,9 +38,11 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     supabase.from("materials").select("total_price").eq("enquiry_id", id),
     supabase.from("commercials").select("total_amount").eq("enquiry_id", id),
     supabase.from("expenses").select("amount").eq("enquiry_id", id),
+    supabase.from("drive_files").select("*").eq("enquiry_id", id).order("created_at", { ascending: false }),
   ])
 
   const enquiry = enquiryResult.data
+  const files = filesResult.data || []
 
   if (!enquiry) {
     notFound()
@@ -265,6 +269,23 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Upload Files
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FileUpload enquiryId={id} />
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight">Uploaded Files</h2>
+        <EnquiryFiles files={files} />
+      </div>
     </div>
   )
 }

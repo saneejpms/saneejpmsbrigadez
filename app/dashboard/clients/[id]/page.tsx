@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowLeft, Pencil, Mail, Phone, Building, MapPin } from "lucide-react"
+import { FileUpload } from "@/components/dashboard/file-upload"
+import { FilesDisplay } from "@/components/dashboard/files-display"
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -111,6 +113,18 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload Files</CardTitle>
+          <CardDescription>Upload contracts, agreements, and other documents to Google Drive</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FileUpload clientId={id} />
+        </CardContent>
+      </Card>
+
+      <FilesDisplay clientId={id} />
     </div>
   )
 }

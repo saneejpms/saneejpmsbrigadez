@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { BrigadezLogo } from "@/components/brigadez-logo"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -46,9 +47,16 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign In to Brigadez PMS</CardTitle>
-          <CardDescription>Enter your credentials provided by your administrator</CardDescription>
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <BrigadezLogo className="h-12" />
+          </div>
+          <div className="space-y-2">
+            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+            <CardDescription className="text-center">
+              Enter your credentials provided by your administrator
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
