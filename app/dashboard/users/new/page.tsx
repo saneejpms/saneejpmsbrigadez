@@ -4,32 +4,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { UserForm } from "@/components/dashboard/user-form"
 
 export default async function NewUserPage() {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
 
-  if (!user) {
+    if (error || !user) {
+      console.error("[v0] Auth error in create user page:", error)
+      redirect("/auth/login")
+    }
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Create New User</h1>
+          <p className="text-muted-foreground">Add a new user account to the system</p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Details</CardTitle>
+            <CardDescription>Enter the information for the new user account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserForm />
+          </CardContent>
+        </Card>
+      </div>
+    )
+  } catch (error) {
+    console.error("[v0] Unexpected error in create user page:", error)
     redirect("/auth/login")
   }
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create New User</h1>
-        <p className="text-muted-foreground">Add a new user account to the system</p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>User Details</CardTitle>
-          <CardDescription>Enter the information for the new user account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserForm />
-        </CardContent>
-      </Card>
-    </div>
-  )
 }

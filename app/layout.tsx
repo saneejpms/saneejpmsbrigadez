@@ -1,7 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Poppins } from "next/font/google"
+import { Inter, Manrope } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 const inter = Inter({
@@ -10,10 +11,9 @@ const inter = Inter({
   display: "swap",
 })
 
-const poppins = Poppins({
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-manrope",
   display: "swap",
 })
 
@@ -29,9 +29,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${manrope.variable} font-sans antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="brigadez-theme">
+          {children}
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

@@ -17,12 +17,12 @@ export default async function HomePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6">
       <div className="w-full max-w-2xl text-center space-y-8">
-        <div className="space-y-4">
-          <BrigadezLogo className="h-16 mx-auto" />
+        <div className="space-y-4 animate-fade-in-up">
+          <BrigadezLogo className="h-16 mx-auto animate-float" />
           <p className="text-xl text-muted-foreground">Complete project management for your business</p>
         </div>
 
-        <div className="space-y-3 text-muted-foreground">
+        <div className="space-y-3 text-muted-foreground animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <p className="text-balance">
             Manage clients, track enquiries, monitor materials and expenses, integrate with Google Drive, and calculate
             profits—all in one place.
@@ -32,8 +32,8 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="flex justify-center">
-          <Button asChild size="lg">
+        <div className="flex justify-center animate-scale-in" style={{ animationDelay: "0.4s" }}>
+          <Button asChild size="lg" className="shadow-xl">
             <Link href="/auth/login">Sign In</Link>
           </Button>
         </div>

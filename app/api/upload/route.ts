@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { google } from "googleapis"
+import { compressPdf } from "@/lib/pdf-compression"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get("file") as File
     const enquiryId = formData.get("enquiryId") as string | null
-    const clientId = formData.get("clientId") as string | null // Added client_id support
+    const clientId = formData.get("clientId") as string | null
     const fileType = formData.get("fileType") as string
 
     if (!file) {
@@ -44,8 +45,29 @@ export async function POST(request: NextRequest) {
     const drive = google.drive({ version: "v3", auth })
 
     // Convert file to buffer
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    let buffer = Buffer.from(await file.arrayBuffer())
+    const originalSize = buffer.length
+    let wasCompressed = false
+    let compressionMethod: string | null = null
+    let compressedSize = buffer.length
+
+    const minCompressionBytes = Number(process.env.PDF_COMPRESSION_MIN_BYTES) || 2_000_000
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
+
+    if (isPdf && originalSize > minCompressionBytes) {
+      console.log("[v0] Starting PDF compression for:", file.name)
+      const compressionResult = await compressPdf(buffer, minCompressionBytes)
+
+      if (compressionResult.success && compressionResult.compressedSize < originalSize) {
+        buffer = compressionResult.compressedBuffer!
+        wasCompressed = true
+        compressionMethod = compressionResult.method
+        compressedSize = compressionResult.compressedSize
+        console.log(`[v0] PDF compressed: ${(compressionResult.compressionRatio || 0).toFixed(2)}% reduction`)
+      } else {
+        console.log("[v0] Compression not effective or failed, using original file")
+      }
+    }
 
     // Upload to Google Drive
     const driveResponse = await drive.files.create({
@@ -66,13 +88,17 @@ export async function POST(request: NextRequest) {
       .from("drive_files")
       .insert({
         enquiry_id: enquiryId || null,
-        client_id: clientId || null,
         file_type: fileType || "other",
         file_name: driveFile.name,
         drive_file_id: driveFile.id,
         drive_url: driveFile.webViewLink,
+        file_url: driveFile.webViewLink,
         file_size: driveFile.size ? Number.parseInt(driveFile.size) : null,
         user_id: user.id,
+        original_size_bytes: originalSize,
+        stored_size_bytes: compressedSize,
+        was_compressed: wasCompressed,
+        compression_method: compressionMethod,
       })
       .select()
       .single()
@@ -85,7 +111,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       file: dbFile,
-      message: "File uploaded successfully",
+      message: wasCompressed
+        ? `File uploaded successfully and compressed by ${(((originalSize - compressedSize) / originalSize) * 100).toFixed(1)}%`
+        : "File uploaded successfully",
+      compressed: wasCompressed,
     })
   } catch (error) {
     console.error("[v0] Upload error:", error)

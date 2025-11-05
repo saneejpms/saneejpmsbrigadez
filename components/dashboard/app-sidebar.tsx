@@ -32,6 +32,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { BrigadezLogo } from "@/components/brigadez-logo"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const menuItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -87,6 +88,12 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="flex items-center justify-between px-2 py-2">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <ThemeToggle />
+            </div>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
