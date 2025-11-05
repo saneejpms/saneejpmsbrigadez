@@ -13,7 +13,6 @@ export default async function NewUserPage() {
     } = await supabase.auth.getUser()
 
     if (error || !user) {
-      console.error("[v0] Auth error in create user page:", error)
       redirect("/auth/login")
     }
 
