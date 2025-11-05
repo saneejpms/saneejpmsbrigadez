@@ -9,7 +9,6 @@ import { ArrowLeft, Pencil, Calendar, DollarSign, User, Upload, CheckCircle2, Fi
 import { FileUpload } from "@/components/dashboard/file-upload"
 import { EnquiryFiles } from "@/components/dashboard/enquiry-files"
 import { MilestoneChecklistWrapper } from "@/components/dashboard/milestone-checklist-wrapper"
-import { getMilestone } from "@/app/actions/milestones"
 
 export default async function EnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -50,13 +49,13 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     supabase.from("commercials").select("total_amount").eq("enquiry_id", id),
     supabase.from("expenses").select("amount").eq("enquiry_id", id),
     supabase.from("drive_files").select("*").eq("enquiry_id", id).order("created_at", { ascending: false }),
-    getMilestone(id),
+    supabase.from("enquiry_milestones").select("*").eq("enquiry_id", id).maybeSingle(),
     supabase.from("profiles").select("id, full_name, email, role").eq("id", user.id).single(),
   ])
 
   const enquiry = enquiryResult.data
   const files = filesResult.data || []
-  const milestone = milestoneResult
+  const milestone = milestoneResult.data
   const profile = profileResult.data
 
   if (!enquiry) {
@@ -84,21 +83,32 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     urgent: "destructive",
   } as const
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Not set"
+    try {
+      return new Date(dateString).toLocaleDateString("en-IN")
+    } catch {
+      return "Invalid date"
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="hover:scale-110 transition-transform">
             <Link href="/dashboard/enquiries">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{enquiry.title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              {enquiry.title}
+            </h1>
             <p className="text-muted-foreground">Enquiry details and information</p>
           </div>
         </div>
-        <Button asChild>
+        <Button asChild className="hover:scale-105 transition-transform">
           <Link href={`/dashboard/enquiries/${id}/edit`}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit
@@ -107,24 +117,24 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-3 glass-card">
+          <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:glow-primary">
             <FileText className="h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="milestones" className="flex items-center gap-2">
+          <TabsTrigger value="milestones" className="flex items-center gap-2 data-[state=active]:glow-primary">
             <CheckCircle2 className="h-4 w-4" />
             Milestones
           </TabsTrigger>
-          <TabsTrigger value="files" className="flex items-center gap-2">
+          <TabsTrigger value="files" className="flex items-center gap-2 data-[state=active]:glow-primary">
             <Upload className="h-4 w-4" />
             Files
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
+            <Card className="glass-card hover:scale-[1.02] transition-transform">
               <CardHeader>
                 <CardTitle>Status & Priority</CardTitle>
               </CardHeader>
@@ -144,7 +154,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card hover:scale-[1.02] transition-transform">
               <CardHeader>
                 <CardTitle>Financial Details</CardTitle>
               </CardHeader>
@@ -173,7 +183,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
             </Card>
           </div>
 
-          <Card>
+          <Card className="glass-card hover:scale-[1.01] transition-transform">
             <CardHeader>
               <CardTitle>Profit & Loss Analysis</CardTitle>
             </CardHeader>
@@ -228,7 +238,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
           </Card>
 
           {enquiry.clients && (
-            <Card>
+            <Card className="glass-card hover:scale-[1.01] transition-transform">
               <CardHeader>
                 <CardTitle>Client Information</CardTitle>
               </CardHeader>
@@ -272,7 +282,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
           )}
 
           {enquiry.description && (
-            <Card>
+            <Card className="glass-card hover:scale-[1.01] transition-transform">
               <CardHeader>
                 <CardTitle>Description</CardTitle>
               </CardHeader>
@@ -282,7 +292,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
             </Card>
           )}
 
-          <Card>
+          <Card className="glass-card hover:scale-[1.01] transition-transform">
             <CardHeader>
               <CardTitle>Timeline</CardTitle>
             </CardHeader>
@@ -291,25 +301,21 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Start Date</p>
-                  <p className="text-sm text-muted-foreground">
-                    {enquiry.start_date ? new Date(enquiry.start_date).toLocaleDateString("en-IN") : "Not set"}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{formatDate(enquiry.start_date)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">End Date</p>
-                  <p className="text-sm text-muted-foreground">
-                    {enquiry.end_date ? new Date(enquiry.end_date).toLocaleDateString("en-IN") : "Not set"}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{formatDate(enquiry.end_date)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="milestones" className="space-y-6">
+        <TabsContent value="milestones" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <MilestoneChecklistWrapper
             enquiryId={id}
             milestone={milestone}
@@ -318,8 +324,8 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
           />
         </TabsContent>
 
-        <TabsContent value="files" className="space-y-6">
-          <Card>
+        <TabsContent value="files" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />

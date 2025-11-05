@@ -26,24 +26,30 @@ interface MilestoneUpdates {
 }
 
 export async function getMilestone(enquiryId: string) {
-  const supabase = await createSupabaseClient()
+  try {
+    const supabase = await createSupabaseClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) {
-    throw new Error("Unauthorized")
+    if (!user) {
+      return null
+    }
+
+    const { data, error } = await supabase.from("enquiry_milestones").select("*").eq("enquiry_id", enquiryId).single()
+
+    if (error && error.code !== "PGRST116") {
+      // PGRST116 is "not found" which is fine
+      console.error("[v0] Error fetching milestone:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("[v0] Unexpected error in getMilestone:", error)
+    return null
   }
-
-  const { data, error } = await supabase.from("enquiry_milestones").select("*").eq("enquiry_id", enquiryId).single()
-
-  if (error && error.code !== "PGRST116") {
-    // PGRST116 is "not found" which is fine
-    throw error
-  }
-
-  return data
 }
 
 export async function updateMilestone(enquiryId: string, updates: MilestoneUpdates) {
