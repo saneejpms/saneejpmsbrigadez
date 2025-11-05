@@ -1,4 +1,3 @@
-import React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,8 +8,8 @@ import Link from "next/link"
 import { ArrowLeft, Pencil, Calendar, DollarSign, User, Upload, CheckCircle2, FileText } from "lucide-react"
 import { FileUpload } from "@/components/dashboard/file-upload"
 import { EnquiryFiles } from "@/components/dashboard/enquiry-files"
-import { MilestoneChecklist } from "@/components/dashboard/milestone-checklist"
-import { getMilestone, updateMilestone } from "@/app/actions/milestones"
+import { MilestoneChecklistWrapper } from "@/components/dashboard/milestone-checklist-wrapper"
+import { getMilestone } from "@/app/actions/milestones"
 
 export default async function EnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -52,7 +51,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     supabase.from("expenses").select("amount").eq("enquiry_id", id),
     supabase.from("drive_files").select("*").eq("enquiry_id", id).order("created_at", { ascending: false }),
     getMilestone(id),
-    supabase.from("profiles").select("id, full_name, email").eq("id", user.id).single(),
+    supabase.from("profiles").select("id, full_name, email, role").eq("id", user.id).single(),
   ])
 
   const enquiry = enquiryResult.data
@@ -84,29 +83,6 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
     high: "default",
     urgent: "destructive",
   } as const
-
-  const MilestoneChecklistWrapper = () => {
-    "use client"
-    const [isUpdating, setIsUpdating] = React.useState(false)
-
-    const handleMilestoneUpdate = async (updates: any) => {
-      setIsUpdating(true)
-      try {
-        await updateMilestone(id, updates)
-      } finally {
-        setIsUpdating(false)
-      }
-    }
-
-    return (
-      <MilestoneChecklist
-        milestone={milestone}
-        currentUser={profile ? { id: profile.id, full_name: profile.full_name || "" } : null}
-        onUpdate={handleMilestoneUpdate}
-        userRole="Admin" // TODO: Get actual user role from profile
-      />
-    )
-  }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -334,7 +310,12 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
         </TabsContent>
 
         <TabsContent value="milestones" className="space-y-6">
-          <MilestoneChecklistWrapper />
+          <MilestoneChecklistWrapper
+            enquiryId={id}
+            milestone={milestone}
+            currentUser={profile ? { id: profile.id, full_name: profile.full_name || "" } : null}
+            userRole={profile?.role || "Viewer"}
+          />
         </TabsContent>
 
         <TabsContent value="files" className="space-y-6">

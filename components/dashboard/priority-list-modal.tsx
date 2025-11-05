@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { GripVertical, ExternalLink, X, Star } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { GripVertical, ExternalLink, X, Star, Pencil, FileText, Wrench } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   DndContext,
@@ -32,6 +33,7 @@ interface PriorityEnquiry {
   stage: string
   due_date: string | null
   priority_rank: number
+  priority_type: "drawing" | "quote" | "work" | null
 }
 
 interface PriorityListModalProps {
@@ -65,6 +67,22 @@ function SortableRow({
     }
     return stageColors[stage] || "bg-gray-500/10 text-gray-500 border-gray-500/20"
   }
+
+  const getPriorityTypeInfo = (type: string | null) => {
+    switch (type) {
+      case "drawing":
+        return { icon: Pencil, label: "Drawing", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" }
+      case "quote":
+        return { icon: FileText, label: "Quote", color: "bg-purple-500/10 text-purple-500 border-purple-500/20" }
+      case "work":
+        return { icon: Wrench, label: "Work", color: "bg-orange-500/10 text-orange-500 border-orange-500/20" }
+      default:
+        return { icon: Star, label: "General", color: "bg-gray-500/10 text-gray-500 border-gray-500/20" }
+    }
+  }
+
+  const typeInfo = getPriorityTypeInfo(enquiry.priority_type)
+  const TypeIcon = typeInfo.icon
 
   return (
     <div
@@ -110,6 +128,7 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
   const router = useRouter()
   const [enquiries, setEnquiries] = useState<PriorityEnquiry[]>([])
   const [loading, setLoading] = useState(true)
+  const [filterType, setFilterType] = useState<"all" | "drawing" | "quote" | "work">("all")
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -190,6 +209,8 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
     onOpenChange(false)
   }
 
+  const filteredEnquiries = filterType === "all" ? enquiries : enquiries.filter((e) => e.priority_type === filterType)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
@@ -201,27 +222,51 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
           <DialogDescription>Drag and drop to reorder your priority enquiries</DialogDescription>
         </DialogHeader>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : enquiries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Star className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No priority enquiries yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Add enquiries to your priority list to see them here</p>
-          </div>
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={enquiries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {enquiries.map((enquiry) => (
-                  <SortableRow key={enquiry.id} enquiry={enquiry} onRemove={handleRemove} onOpen={handleOpen} />
-                ))}
+        <Tabs value={filterType} onValueChange={(v) => setFilterType(v as any)} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all">All ({enquiries.length})</TabsTrigger>
+            <TabsTrigger value="drawing" className="flex items-center gap-1">
+              <Pencil className="h-3 w-3" />
+              Drawing ({enquiries.filter((e) => e.priority_type === "drawing").length})
+            </TabsTrigger>
+            <TabsTrigger value="quote" className="flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              Quote ({enquiries.filter((e) => e.priority_type === "quote").length})
+            </TabsTrigger>
+            <TabsTrigger value="work" className="flex items-center gap-1">
+              <Wrench className="h-3 w-3" />
+              Work ({enquiries.filter((e) => e.priority_type === "work").length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={filterType} className="mt-4">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
-            </SortableContext>
-          </DndContext>
-        )}
+            ) : filteredEnquiries.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Star className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">
+                  No {filterType === "all" ? "" : filterType} priority enquiries yet
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Add enquiries to your priority list to see them here
+                </p>
+              </div>
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filteredEnquiries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {filteredEnquiries.map((enquiry) => (
+                      <SortableRow key={enquiry.id} enquiry={enquiry} onRemove={handleRemove} onOpen={handleOpen} />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   )

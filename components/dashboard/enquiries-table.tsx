@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { PriorityTypeDialog } from "./priority-type-dialog"
 
 type Enquiry = {
   id: string
@@ -54,6 +55,8 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [togglingPriority, setTogglingPriority] = useState<string | null>(null)
+  const [showPriorityDialog, setShowPriorityDialog] = useState(false)
+  const [selectedEnquiryId, setSelectedEnquiryId] = useState<string | null>(null)
 
   const handleDelete = async () => {
     if (!deleteId) return
@@ -71,19 +74,49 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
   }
 
   const handlePriorityToggle = async (id: string, currentStatus: boolean) => {
-    setTogglingPriority(id)
+    if (currentStatus) {
+      // Removing from priority - do it directly
+      setTogglingPriority(id)
+      try {
+        const response = await fetch(`/api/enquiries/${id}/priority`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_priority: false }),
+        })
+
+        if (response.ok) {
+          router.refresh()
+        }
+      } catch (error) {
+        console.error("[v0] Failed to toggle priority:", error)
+      } finally {
+        setTogglingPriority(null)
+      }
+    } else {
+      // Adding to priority - show dialog to select type
+      setSelectedEnquiryId(id)
+      setShowPriorityDialog(true)
+    }
+  }
+
+  const handlePriorityTypeConfirm = async (type: "drawing" | "quote" | "work" | null) => {
+    if (!selectedEnquiryId) return
+
+    setTogglingPriority(selectedEnquiryId)
     try {
-      const response = await fetch(`/api/enquiries/${id}/priority`, {
+      const response = await fetch(`/api/enquiries/${selectedEnquiryId}/priority`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_priority: !currentStatus }),
+        body: JSON.stringify({ is_priority: true, priority_type: type }),
       })
 
       if (response.ok) {
         router.refresh()
+        setShowPriorityDialog(false)
+        setSelectedEnquiryId(null)
       }
     } catch (error) {
-      console.error("[v0] Failed to toggle priority:", error)
+      console.error("[v0] Failed to add to priority:", error)
     } finally {
       setTogglingPriority(null)
     }
@@ -197,6 +230,13 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PriorityTypeDialog
+        open={showPriorityDialog}
+        onOpenChange={setShowPriorityDialog}
+        onConfirm={handlePriorityTypeConfirm}
+        loading={togglingPriority === selectedEnquiryId}
+      />
     </>
   )
 }

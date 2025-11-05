@@ -4,12 +4,12 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated to match design system with blue primary and specific color palette */
+  /* Modern minimal design system with blue primary */
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
-  --popover: 0 0% 98%; /* Slightly off-white for better contrast */
+  --popover: 0 0% 100%; /* Fully opaque white */
   --popover-foreground: 222 47% 11%;
   --primary: 217 91% 60%; /* #2563EB blue-600 */
   --primary-foreground: 0 0% 100%;
@@ -45,12 +45,12 @@
 }
 
 .dark {
-  /* Dark mode colors matching design system with #0B0F14 background */
+  /* Dark mode with #0B0F14 background and glassmorphism */
   --background: 222 47% 5%; /* #0B0F14 */
   --foreground: 210 40% 98%;
   --card: 222 47% 11%; /* #0F172A */
   --card-foreground: 210 40% 98%;
-  --popover: 222 47% 14%; /* Elevated surface, fully opaque */
+  --popover: 222 47% 11%; /* Fully opaque elevated surface */
   --popover-foreground: 210 40% 98%;
   --primary: 217 91% 60%; /* #2563EB */
   --primary-foreground: 0 0% 100%;
@@ -136,10 +136,9 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    /* Updated to use Inter for body text with proper line height */
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 0.875rem; /* 14px */
-    line-height: 1.5; /* leading-6 */
+    line-height: 1.5;
   }
   h1,
   h2,
@@ -147,69 +146,120 @@
   h4,
   h5,
   h6 {
-    /* Using Manrope for headings with proper sizing */
     font-family: var(--font-manrope), system-ui, sans-serif;
     font-weight: 600;
-    line-height: 1.75rem; /* 28px */
+    line-height: 1.75rem;
   }
 
   h1 {
-    font-size: 1.5rem; /* 24px */
+    font-size: 1.5rem;
     line-height: 1.75rem;
   }
 
   h2 {
-    font-size: 1.25rem; /* 20px */
+    font-size: 1.25rem;
     line-height: 1.75rem;
   }
 
   h3 {
-    font-size: 1.125rem; /* 18px */
+    font-size: 1.125rem;
     line-height: 1.75rem;
   }
 
   @media (min-width: 768px) {
     h1 {
-      font-size: 1.875rem; /* 30px */
+      font-size: 1.875rem;
       line-height: 2rem;
     }
   }
 
-  /* Custom shadow utilities matching design system */
-  .shadow-card {
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  /* Added modern glassmorphism and glow effects */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   }
 
-  .shadow-card-hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  .dark .glass-card {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
-  .dark .shadow-card {
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.1);
   }
 
-  .dark .shadow-card-hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  .dark .glow-primary {
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.4), 0 0 60px rgba(37, 99, 235, 0.2);
   }
 
-  /* Custom animations and glow effects */
-  @keyframes glow-pulse {
+  .glow-success {
+    box-shadow: 0 0 20px rgba(22, 163, 74, 0.3), 0 0 40px rgba(22, 163, 74, 0.1);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(245, 158, 11, 0.1);
+  }
+
+  .glow-destructive {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Added smooth animations */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse-glow {
     0%,
     100% {
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
     }
     50% {
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
+      box-shadow: 0 0 40px rgba(37, 99, 235, 0.5), 0 0 60px rgba(37, 99, 235, 0.3);
     }
   }
 
@@ -222,74 +272,65 @@
     }
   }
 
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes scale-in {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  .animate-glow-pulse {
-    animation: glow-pulse 3s ease-in-out infinite;
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-shimmer {
-    animation: shimmer 2s linear infinite;
-  }
-
   .animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out forwards;
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.5s ease-out forwards;
   }
 
   .animate-scale-in {
-    animation: scale-in 0.4s ease-out forwards;
+    animation: scale-in 0.3s ease-out forwards;
   }
 
-  .glow-effect {
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
+  .animate-slide-in-right {
+    animation: slide-in-right 0.4s ease-out forwards;
   }
 
-  .glow-effect:hover {
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15), 0 0 40px rgba(0, 0, 0, 0.1);
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
   }
 
-  .dark .glow-effect {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
   }
 
-  .dark .glow-effect:hover {
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1), 0 0 40px rgba(255, 255, 255, 0.05);
+  /* Added smooth transitions for all interactive elements */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  button:hover,
+  a:hover {
+    transform: translateY(-1px);
   }
 
-  .dark .glass-effect {
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  button:active,
+  a:active {
+    transform: translateY(0);
+  }
+
+  /* Enhanced card shadows */
+  .shadow-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .dark .shadow-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark .shadow-card-hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   }
 }

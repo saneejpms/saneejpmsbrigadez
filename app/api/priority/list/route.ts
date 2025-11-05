@@ -14,7 +14,6 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Fetch priority enquiries with client info
     const { data, error } = await supabase
       .from("enquiries")
       .select(`
@@ -24,6 +23,7 @@ export async function GET() {
         stage,
         due_date,
         priority_rank,
+        priority_type,
         clients (
           name
         )
@@ -36,7 +36,6 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch priority list" }, { status: 500 })
     }
 
-    // Transform data to include client_name
     const enquiries = data.map((e: any) => ({
       id: e.id,
       code: e.code,
@@ -45,6 +44,7 @@ export async function GET() {
       stage: e.stage,
       due_date: e.due_date,
       priority_rank: e.priority_rank,
+      priority_type: e.priority_type,
     }))
 
     return NextResponse.json({

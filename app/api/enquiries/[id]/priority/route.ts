@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     const { id } = params
     const body = await request.json()
-    const { is_priority } = body
+    const { is_priority, priority_type } = body
 
     if (typeof is_priority !== "boolean") {
       return NextResponse.json({ error: "is_priority must be a boolean" }, { status: 400 })
@@ -36,16 +36,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       priority_rank = (maxRankData?.priority_rank || 0) + 1
     }
 
+    const updateData: any = {
+      is_priority,
+      priority_rank: is_priority ? priority_rank : null,
+    }
+
+    if (is_priority && priority_type && ["drawing", "quote", "work"].includes(priority_type)) {
+      updateData.priority_type = priority_type
+    } else if (!is_priority) {
+      updateData.priority_type = null
+    }
+
     // Update the enquiry
-    const { data, error } = await supabase
-      .from("enquiries")
-      .update({
-        is_priority,
-        priority_rank: is_priority ? priority_rank : null,
-      })
-      .eq("id", id)
-      .select()
-      .single()
+    const { data, error } = await supabase.from("enquiries").update(updateData).eq("id", id).select().single()
 
     if (error) {
       console.error("[v0] Priority update error:", error)

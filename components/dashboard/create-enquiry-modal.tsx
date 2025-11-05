@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2, Sparkles } from "lucide-react"
 
 type Client = {
   id: string
@@ -83,14 +83,17 @@ export function CreateEnquiryModal({ open, onOpenChange, clients }: CreateEnquir
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] glass-card animate-scale-in border-primary/20">
         <DialogHeader>
-          <DialogTitle>Create New Enquiry</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Create New Enquiry
+          </DialogTitle>
           <DialogDescription>Add a new project enquiry to your system.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             <Label htmlFor="title">Job Name *</Label>
             <Input
               id="title"
@@ -99,21 +102,22 @@ export function CreateEnquiryModal({ open, onOpenChange, clients }: CreateEnquir
               placeholder="e.g., Office Renovation"
               required
               disabled={isLoading}
+              className="glass-card border-primary/20 focus:glow-primary transition-all"
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             <Label htmlFor="client_id">Client</Label>
             <Select
               value={formData.client_id}
               onValueChange={(value) => setFormData({ ...formData, client_id: value })}
               disabled={isLoading}
             >
-              <SelectTrigger>
+              <SelectTrigger className="glass-card border-primary/20 focus:glow-primary transition-all">
                 <SelectValue placeholder="Select a client (optional)" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No client</SelectItem> {/* Updated value to be a non-empty string */}
+              <SelectContent className="glass-card">
+                <SelectItem value="none">No client</SelectItem>
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name} {client.company && `(${client.company})`}
@@ -123,7 +127,7 @@ export function CreateEnquiryModal({ open, onOpenChange, clients }: CreateEnquir
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -132,10 +136,11 @@ export function CreateEnquiryModal({ open, onOpenChange, clients }: CreateEnquir
               placeholder="Brief description of the project..."
               rows={3}
               disabled={isLoading}
+              className="glass-card border-primary/20 focus:glow-primary transition-all resize-none"
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <Label htmlFor="due_date">Due Date</Label>
             <Input
               id="due_date"
@@ -143,14 +148,25 @@ export function CreateEnquiryModal({ open, onOpenChange, clients }: CreateEnquir
               value={formData.due_date}
               onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
               disabled={isLoading}
+              className="glass-card border-primary/20 focus:glow-primary transition-all"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+          <div className="flex justify-end gap-3 pt-4 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+              className="glass-card hover:bg-secondary/50 transition-all"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-primary hover:bg-primary/90 glow-primary transition-all"
+            >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Enquiry
             </Button>
