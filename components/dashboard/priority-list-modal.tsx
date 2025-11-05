@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GripVertical, ExternalLink, X, Star, Pencil, FileText, Wrench } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   DndContext,
   closestCenter,
@@ -198,9 +199,12 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
 
       if (response.ok) {
         setEnquiries(enquiries.filter((e) => e.id !== id))
+        toast.success("Removed from priority list")
+        router.refresh()
       }
     } catch (error) {
       console.error("[v0] Failed to remove from priority:", error)
+      toast.error("Failed to remove from priority list")
     }
   }
 
@@ -213,7 +217,7 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto animate-scale-in">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-primary" />
@@ -245,7 +249,7 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : filteredEnquiries.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="flex flex-col items-center justify-center py-12 text-center animate-fade-in-up">
                 <Star className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
                   No {filterType === "all" ? "" : filterType} priority enquiries yet
@@ -258,8 +262,10 @@ export function PriorityListModal({ open, onOpenChange }: PriorityListModalProps
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={filteredEnquiries.map((e) => e.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
-                    {filteredEnquiries.map((enquiry) => (
-                      <SortableRow key={enquiry.id} enquiry={enquiry} onRemove={handleRemove} onOpen={handleOpen} />
+                    {filteredEnquiries.map((enquiry, index) => (
+                      <div key={enquiry.id} className="stagger-item" style={{ animationDelay: `${index * 0.05}s` }}>
+                        <SortableRow enquiry={enquiry} onRemove={handleRemove} onOpen={handleOpen} />
+                      </div>
                     ))}
                   </div>
                 </SortableContext>

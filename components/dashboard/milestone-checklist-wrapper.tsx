@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { MilestoneChecklist, type MilestoneChecklistProps } from "./milestone-checklist"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface MilestoneChecklistWrapperProps extends Omit<MilestoneChecklistProps, "onUpdate"> {
   enquiryId: string
@@ -9,6 +11,7 @@ interface MilestoneChecklistWrapperProps extends Omit<MilestoneChecklistProps, "
 
 export function MilestoneChecklistWrapper({ enquiryId, ...props }: MilestoneChecklistWrapperProps) {
   const [isUpdating, setIsUpdating] = useState(false)
+  const router = useRouter()
 
   const handleMilestoneUpdate = async (updates: any) => {
     setIsUpdating(true)
@@ -23,10 +26,11 @@ export function MilestoneChecklistWrapper({ enquiryId, ...props }: MilestoneChec
         throw new Error("Failed to update milestone")
       }
 
-      // Refresh the page to show updated data
-      window.location.reload()
+      toast.success("Milestone updated successfully")
+      router.refresh()
     } catch (error) {
       console.error("[v0] Failed to update milestone:", error)
+      toast.error("Failed to update milestone")
     } finally {
       setIsUpdating(false)
     }

@@ -8,6 +8,7 @@ import Link from "next/link"
 import { deleteEnquiry } from "@/app/actions/enquiries"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { toast } from "sonner"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,10 +86,14 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
         })
 
         if (response.ok) {
+          toast.success("Removed from priority list")
           router.refresh()
+        } else {
+          toast.error("Failed to remove from priority")
         }
       } catch (error) {
         console.error("[v0] Failed to toggle priority:", error)
+        toast.error("Failed to remove from priority")
       } finally {
         setTogglingPriority(null)
       }
@@ -111,12 +116,16 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
       })
 
       if (response.ok) {
+        toast.success("Added to priority list")
         router.refresh()
         setShowPriorityDialog(false)
         setSelectedEnquiryId(null)
+      } else {
+        toast.error("Failed to add to priority")
       }
     } catch (error) {
       console.error("[v0] Failed to add to priority:", error)
+      toast.error("Failed to add to priority")
     } finally {
       setTogglingPriority(null)
     }

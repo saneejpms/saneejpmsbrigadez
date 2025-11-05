@@ -97,7 +97,7 @@ export function EnquiriesList() {
   }
 
   return (
-    <Card>
+    <Card className="animate-fade-in-up">
       <CardHeader>
         <CardTitle>Recent Enquiries</CardTitle>
         <CardDescription>Latest project enquiries sorted by date</CardDescription>
@@ -109,10 +109,11 @@ export function EnquiriesList() {
           </div>
         ) : (
           <div className="space-y-3">
-            {enquiries.map((enquiry) => (
+            {enquiries.map((enquiry, index) => (
               <div
                 key={enquiry.id}
-                className="group flex items-center justify-between rounded-xl border bg-card p-4 transition-all hover:shadow-md"
+                className="stagger-item group flex items-center justify-between rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:scale-[1.01]"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
