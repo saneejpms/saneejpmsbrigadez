@@ -4,29 +4,28 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Modern minimal design system inspired by Vercel with refined colors */
-  --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  /* Modern glassmorphism design system */
+  --background: 0 0% 2%;
+  --foreground: 0 0% 98%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 98%;
 
-  /* Solid white background for dropdowns */
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
+  --popover: 0 0% 12%;
+  --popover-foreground: 0 0% 98%;
 
-  /* Blue primary color */
+  /* Bright blue primary */
   --primary: 217 91% 60%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
 
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 65%;
 
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 9%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
@@ -37,8 +36,8 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 98%;
 
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
+  --border: 0 0% 20%;
+  --input: 0 0% 15%;
   --ring: 217 91% 60%;
 
   --chart-1: 217 91% 60%;
@@ -49,39 +48,37 @@
 
   --radius: 0.75rem;
 
-  --sidebar: 0 0% 100%;
-  --sidebar-foreground: 0 0% 9%;
+  --sidebar: 0 0% 8%;
+  --sidebar-foreground: 0 0% 98%;
   --sidebar-primary: 217 91% 60%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 96%;
-  --sidebar-accent-foreground: 0 0% 9%;
-  --sidebar-border: 0 0% 90%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 0 0% 20%;
   --sidebar-ring: 217 91% 60%;
 }
 
 .dark {
-  /* Dark mode with deep black background like Vercel */
-  --background: 0 0% 0%;
+  --background: 0 0% 2%;
   --foreground: 0 0% 98%;
 
-  --card: 0 0% 4%;
+  --card: 0 0% 8%;
   --card-foreground: 0 0% 98%;
 
-  /* Solid elevated surface for dropdowns */
-  --popover: 0 0% 6%;
+  --popover: 0 0% 12%;
   --popover-foreground: 0 0% 98%;
 
   --primary: 217 91% 60%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 10%;
+  --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 98%;
 
-  --muted: 0 0% 10%;
-  --muted-foreground: 0 0% 60%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 65%;
 
-  --accent: 0 0% 10%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
@@ -92,7 +89,7 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 98%;
 
-  --border: 0 0% 15%;
+  --border: 0 0% 20%;
   --input: 0 0% 15%;
   --ring: 217 91% 60%;
 
@@ -102,13 +99,13 @@
   --chart-4: 0 84% 60%;
   --chart-5: 262 83% 58%;
 
-  --sidebar: 0 0% 4%;
+  --sidebar: 0 0% 8%;
   --sidebar-foreground: 0 0% 98%;
   --sidebar-primary: 217 91% 60%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent: 0 0% 15%;
   --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 0 0% 15%;
+  --sidebar-border: 0 0% 20%;
   --sidebar-ring: 217 91% 60%;
 }
 
@@ -168,9 +165,10 @@
     font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 0.875rem;
     line-height: 1.5;
+    background: linear-gradient(135deg, #030303 0%, #0a0a0a 50%, #030303 100%);
   }
 
-  /* Modern typography with better hierarchy */
+  /* Modern typography with premium feel */
   h1,
   h2,
   h3,
@@ -218,17 +216,6 @@
     }
   }
 
-  @keyframes fade-in-down {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   @keyframes scale-in {
     from {
       opacity: 0;
@@ -240,14 +227,14 @@
     }
   }
 
-  @keyframes slide-in-right {
+  @keyframes float-in {
     from {
       opacity: 0;
-      transform: translateX(20px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateY(0);
     }
   }
 
@@ -260,6 +247,16 @@
     }
   }
 
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(37, 99, 235, 0.25);
+    }
+  }
+
   .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
   }
@@ -268,32 +265,37 @@
     animation: fade-in-up 0.4s ease-out forwards;
   }
 
-  .animate-fade-in-down {
-    animation: fade-in-down 0.4s ease-out forwards;
-  }
-
   .animate-scale-in {
     animation: scale-in 0.2s ease-out forwards;
   }
 
-  .animate-slide-in-right {
-    animation: slide-in-right 0.3s ease-out forwards;
+  .animate-float-in {
+    animation: float-in 0.5s ease-out forwards;
   }
 
-  /* Solid backgrounds for dropdowns and popovers */
-  [data-radix-popper-content-wrapper],
-  [role="menu"],
-  [role="listbox"],
-  [role="dialog"] {
-    background: hsl(var(--popover)) !important;
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
   }
 
-  .dark [data-radix-popper-content-wrapper],
-  .dark [role="menu"],
-  .dark [role="listbox"],
-  .dark [role="dialog"] {
-    background: hsl(var(--popover)) !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+  /* Glassmorphism effects */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/8 border-white/15 shadow-xl;
+  }
+
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-200;
+  }
+
+  .glass-input {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:bg-white/8;
+  }
+
+  .glass-modal {
+    @apply bg-background/40 backdrop-blur-2xl border border-white/10 shadow-2xl;
   }
 
   /* Smooth transitions for interactive elements */
@@ -310,40 +312,26 @@
     transform: translateY(-1px);
   }
 
-  button:not(:disabled):active,
-  a:not(:disabled):active {
-    transform: translateY(0);
-  }
-
-  /* Modern card styling */
+  /* Modern card styling with glass effect */
   .card-hover {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply transition-all duration-300 cursor-pointer;
   }
 
   .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    @apply transform -translate-y-1 shadow-lg;
   }
 
-  .dark .card-hover:hover {
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
-  }
-
-  /* Subtle glow effects */
+  /* Glow effects for primary elements */
   .glow-primary {
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.3), inset 0 0 30px rgba(37, 99, 235, 0.1);
   }
 
   .glow-success {
-    box-shadow: 0 0 20px rgba(22, 163, 74, 0.2);
-  }
-
-  .glow-warning {
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
   }
 
   .glow-destructive {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
   }
 
   /* Stagger animation for lists */
@@ -378,32 +366,31 @@
   .stagger-item:nth-child(5) {
     animation-delay: 0.25s;
   }
-  .stagger-item:nth-child(6) {
-    animation-delay: 0.3s;
+
+  /* Popovers and dialogs */
+  [data-radix-popper-content-wrapper],
+  [role="menu"],
+  [role="listbox"],
+  [role="dialog"] {
+    @apply bg-background/80 backdrop-blur-xl;
   }
-  .stagger-item:nth-child(7) {
-    animation-delay: 0.35s;
-  }
-  .stagger-item:nth-child(8) {
-    animation-delay: 0.4s;
-  }
-  .stagger-item:nth-child(9) {
-    animation-delay: 0.45s;
-  }
-  .stagger-item:nth-child(10) {
-    animation-delay: 0.5s;
+}
+
+@layer components {
+  /* Premium button variants with glass effect */
+  .btn-glass {
+    @apply px-4 py-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 
+           hover:bg-white/15 hover:border-white/30 transition-all duration-200 
+           font-medium text-sm text-foreground;
   }
 
-  /* Added glassmorphism utility classes */
-  .glass-card {
-    @apply bg-background/40 backdrop-blur-xl border border-white/10 shadow-lg;
+  .btn-glass-primary {
+    @apply px-4 py-2 rounded-lg bg-primary/80 backdrop-blur-md border border-primary/50 
+           hover:bg-primary hover:border-primary/70 transition-all duration-200 
+           font-medium text-sm text-primary-foreground shadow-lg shadow-primary/20;
   }
 
-  .dark .glass-card {
-    @apply bg-card/40 backdrop-blur-xl border border-white/5 shadow-xl shadow-black/50;
-  }
-
-  .glass-button {
-    @apply bg-primary/10 backdrop-blur-md border border-primary/30 hover:border-primary/50 transition-all;
+  .card-glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-2xl hover:bg-white/8 transition-all duration-300;
   }
 }
