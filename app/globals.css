@@ -393,4 +393,17 @@
   .stagger-item:nth-child(10) {
     animation-delay: 0.5s;
   }
+
+  /* Added glassmorphism utility classes */
+  .glass-card {
+    @apply bg-background/40 backdrop-blur-xl border border-white/10 shadow-lg;
+  }
+
+  .dark .glass-card {
+    @apply bg-card/40 backdrop-blur-xl border border-white/5 shadow-xl shadow-black/50;
+  }
+
+  .glass-button {
+    @apply bg-primary/10 backdrop-blur-md border border-primary/30 hover:border-primary/50 transition-all;
+  }
 }

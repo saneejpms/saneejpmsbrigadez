@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     const { id } = params
     const body = await request.json()
-    const { is_priority, priority_type } = body
+    const { is_priority, priority_types } = body
 
     if (typeof is_priority !== "boolean") {
       return NextResponse.json({ error: "is_priority must be a boolean" }, { status: 400 })
@@ -41,19 +41,29 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       priority_rank: is_priority ? priority_rank : null,
     }
 
-    if (is_priority && priority_type && ["drawing", "quote", "work"].includes(priority_type)) {
-      updateData.priority_type = priority_type
+    if (is_priority && priority_types && Array.isArray(priority_types)) {
+      // Validate all types
+      const validTypes = ["drawing", "quote", "work"]
+      const filteredTypes = priority_types.filter((t: string) => validTypes.includes(t))
+      if (filteredTypes.length > 0) {
+        updateData.priority_types = filteredTypes
+      } else {
+        updateData.priority_types = null
+      }
     } else if (!is_priority) {
-      updateData.priority_type = null
+      updateData.priority_types = null
     }
 
-    // Update the enquiry
+    console.log("[v0] Updating priority for enquiry:", id, updateData)
+
     const { data, error } = await supabase.from("enquiries").update(updateData).eq("id", id).select().single()
 
     if (error) {
       console.error("[v0] Priority update error:", error)
-      return NextResponse.json({ error: "Failed to update priority status" }, { status: 500 })
+      return NextResponse.json({ error: `Failed to update priority status: ${error.message}` }, { status: 500 })
     }
+
+    console.log("[v0] Priority updated successfully:", data)
 
     return NextResponse.json({
       success: true,

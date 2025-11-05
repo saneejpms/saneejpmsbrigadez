@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2, Star } from "lucide-react"
+import { Eye, Pencil, Trash2, Star, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { deleteEnquiry } from "@/app/actions/enquiries"
 import { useRouter } from "next/navigation"
@@ -30,6 +30,7 @@ type Enquiry = {
   estimated_value: number | null
   start_date: string | null
   is_priority?: boolean
+  priority_types?: ("drawing" | "quote" | "work")[]
   clients: {
     id: string
     name: string
@@ -89,7 +90,8 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
           toast.success("Removed from priority list")
           router.refresh()
         } else {
-          toast.error("Failed to remove from priority")
+          const error = await response.json()
+          toast.error(error.error || "Failed to remove from priority")
         }
       } catch (error) {
         console.error("[v0] Failed to toggle priority:", error)
@@ -98,13 +100,13 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
         setTogglingPriority(null)
       }
     } else {
-      // Adding to priority - show dialog to select type
+      // Adding to priority - show dialog to select types
       setSelectedEnquiryId(id)
       setShowPriorityDialog(true)
     }
   }
 
-  const handlePriorityTypeConfirm = async (type: "drawing" | "quote" | "work" | null) => {
+  const handlePriorityTypeConfirm = async (types: ("drawing" | "quote" | "work")[]) => {
     if (!selectedEnquiryId) return
 
     setTogglingPriority(selectedEnquiryId)
@@ -112,7 +114,7 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
       const response = await fetch(`/api/enquiries/${selectedEnquiryId}/priority`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_priority: true, priority_type: type }),
+        body: JSON.stringify({ is_priority: true, priority_types: types }),
       })
 
       if (response.ok) {
@@ -121,7 +123,8 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
         setShowPriorityDialog(false)
         setSelectedEnquiryId(null)
       } else {
-        toast.error("Failed to add to priority")
+        const error = await response.json()
+        toast.error(error.error || "Failed to add to priority")
       }
     } catch (error) {
       console.error("[v0] Failed to add to priority:", error)
@@ -194,7 +197,11 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
                             onClick={() => handlePriorityToggle(enquiry.id, !!enquiry.is_priority)}
                             disabled={togglingPriority === enquiry.id}
                           >
-                            <Star className={`h-4 w-4 ${enquiry.is_priority ? "fill-primary text-primary" : ""}`} />
+                            {togglingPriority === enquiry.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Star className={`h-4 w-4 ${enquiry.is_priority ? "fill-primary text-primary" : ""}`} />
+                            )}
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
