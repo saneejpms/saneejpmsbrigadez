@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Upload, Loader2, AlertCircle, CheckCircle, XCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface FileUploadProps {
@@ -81,6 +81,53 @@ export function FileUpload({ enquiryId, clientId }: FileUploadProps) {
 
   const isDriveConfigured = driveHealth?.ok ?? false
 
+  const getErrorDetails = () => {
+    if (!driveHealth || driveHealth.ok) return null
+
+    switch (driveHealth.reason) {
+      case "MISSING_SERVICE_ACCOUNT_KEY":
+        return {
+          title: "Missing Service Account Key",
+          description: "The GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set.",
+          instructions: [
+            "1. Create a service account in Google Cloud Console",
+            "2. Download the JSON key file",
+            "3. Add it as GOOGLE_SERVICE_ACCOUNT_KEY in your environment variables",
+          ],
+        }
+      case "INVALID_SERVICE_ACCOUNT_KEY":
+        return {
+          title: "Invalid Service Account Key",
+          description: driveHealth.message || "The service account key JSON is malformed or incomplete.",
+          instructions: [
+            "1. Verify the JSON is properly formatted (no extra spaces or line breaks)",
+            "2. Ensure it contains 'client_email' and 'private_key' fields",
+            "3. Try re-downloading the key from Google Cloud Console",
+            "4. Make sure to escape newlines in the private_key (\\n)",
+          ],
+        }
+      case "MISSING_PARENT_FOLDER_ID":
+        return {
+          title: "Missing Parent Folder ID",
+          description: "The GOOGLE_DRIVE_PARENT_FOLDER_ID environment variable is not set.",
+          instructions: [
+            "1. Create a folder in Google Drive",
+            "2. Share it with the service account email",
+            "3. Copy the folder ID from the URL",
+            "4. Add it as GOOGLE_DRIVE_PARENT_FOLDER_ID in your environment variables",
+          ],
+        }
+      default:
+        return {
+          title: "Google Drive Not Configured",
+          description: driveHealth.message || "Google Drive integration is not properly configured.",
+          instructions: ["Contact your administrator to configure Google Drive integration."],
+        }
+    }
+  }
+
+  const errorDetails = getErrorDetails()
+
   return (
     <div className="space-y-4">
       {checkingHealth ? (
@@ -116,11 +163,20 @@ export function FileUpload({ enquiryId, clientId }: FileUploadProps) {
             </div>
           </div>
 
-          {!isDriveConfigured && (
-            <Alert>
+          {!isDriveConfigured && errorDetails && (
+            <Alert variant="destructive" className="border-destructive/50 bg-destructive/5">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Google Drive is not configured. Contact your administrator to add the required environment variables.
+              <AlertTitle className="font-semibold">{errorDetails.title}</AlertTitle>
+              <AlertDescription className="mt-2 space-y-2">
+                <p className="text-sm">{errorDetails.description}</p>
+                <div className="mt-3 space-y-1 text-xs">
+                  <p className="font-semibold">How to fix:</p>
+                  {errorDetails.instructions.map((instruction, index) => (
+                    <p key={index} className="text-muted-foreground">
+                      {instruction}
+                    </p>
+                  ))}
+                </div>
               </AlertDescription>
             </Alert>
           )}
