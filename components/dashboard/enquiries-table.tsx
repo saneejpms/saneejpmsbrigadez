@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { PriorityTypeDialog } from "./priority-type-dialog"
+import { EnquiriesMobileList } from "./enquiries-mobile-list"
 
 type Enquiry = {
   id: string
@@ -113,8 +114,6 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
 
     setPriorityLoading(true)
     try {
-      console.log("[v0] Adding priority types:", types, "for enquiry:", selectedEnquiryId)
-
       const response = await fetch(`/api/enquiries/${selectedEnquiryId}/priority`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -124,13 +123,11 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
       const responseData = await response.json()
 
       if (response.ok) {
-        console.log("[v0] Priority added successfully:", responseData)
         toast.success(`Added to priority (${types.length} type${types.length > 1 ? "s" : ""})`)
         setShowPriorityDialog(false)
         setSelectedEnquiryId(null)
         router.refresh()
       } else {
-        console.error("[v0] API error:", responseData)
         toast.error(responseData.error || "Failed to add to priority")
       }
     } catch (error) {
@@ -143,7 +140,7 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
 
   return (
     <>
-      <div className="rounded-lg glass-card border-white/10 overflow-hidden">
+      <div className="hidden md:block rounded-2xl glass-card border-white/10 overflow-hidden animate-fade-in">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-white/5">
@@ -161,7 +158,10 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
               {enquiries.map((enquiry, idx) => (
                 <TableRow
                   key={enquiry.id}
-                  className={`border-white/5 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-white/2" : ""}`}
+                  className={`border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${
+                    idx % 2 === 0 ? "bg-white/2" : ""
+                  }`}
+                  onClick={() => (window.location.href = `/dashboard/enquiries/${enquiry.id}`)}
                 >
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
                   <TableCell className="text-foreground">
                     {enquiry.start_date ? new Date(enquiry.start_date).toLocaleDateString("en-IN") : "—"}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end gap-1">
                       <TooltipProvider>
                         <Tooltip>
@@ -219,7 +219,9 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 <Star
-                                  className={`h-4 w-4 transition-colors ${enquiry.is_priority ? "fill-primary text-primary" : "text-muted-foreground"}`}
+                                  className={`h-4 w-4 transition-colors ${
+                                    enquiry.is_priority ? "fill-primary text-primary" : "text-muted-foreground"
+                                  }`}
                                 />
                               )}
                             </Button>
@@ -257,6 +259,19 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
             </TableBody>
           </Table>
         </div>
+      </div>
+
+      <div className="md:hidden animate-fade-in">
+        <EnquiriesMobileList
+          enquiries={enquiries}
+          onPriorityToggle={handlePriorityToggle}
+          onDeleteClick={(id) => setDeleteId(id)}
+          onAddPriority={(id) => {
+            setSelectedEnquiryId(id)
+            setShowPriorityDialog(true)
+          }}
+          priorityLoading={priorityLoading}
+        />
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

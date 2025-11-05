@@ -31,7 +31,7 @@ export function AddEnquiryFAB() {
   return (
     <>
       <div className="hidden md:block">
-        <Button onClick={() => setOpen(true)} size="default" className="gap-2">
+        <Button onClick={() => setOpen(true)} size="default" className="btn-primary gap-2">
           <Plus className="h-4 w-4" />
           Add Enquiry
         </Button>
@@ -40,7 +40,7 @@ export function AddEnquiryFAB() {
       <Button
         onClick={() => setOpen(true)}
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 md:hidden"
+        className="fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-30 md:hidden btn-primary"
       >
         <Plus className="h-6 w-6" />
       </Button>
