@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2 } from "lucide-react"
+import { Eye, Pencil, Trash2, Star } from "lucide-react"
 import Link from "next/link"
 import { deleteEnquiry } from "@/app/actions/enquiries"
 import { useRouter } from "next/navigation"
@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type Enquiry = {
   id: string
@@ -26,6 +27,7 @@ type Enquiry = {
   priority: string
   estimated_value: number | null
   start_date: string | null
+  is_priority?: boolean
   clients: {
     id: string
     name: string
@@ -51,6 +53,7 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
   const router = useRouter()
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [togglingPriority, setTogglingPriority] = useState<string | null>(null)
 
   const handleDelete = async () => {
     if (!deleteId) return
@@ -64,6 +67,25 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
       console.error("Failed to delete enquiry:", error)
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handlePriorityToggle = async (id: string, currentStatus: boolean) => {
+    setTogglingPriority(id)
+    try {
+      const response = await fetch(`/api/enquiries/${id}/priority`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_priority: !currentStatus }),
+      })
+
+      if (response.ok) {
+        router.refresh()
+      }
+    } catch (error) {
+      console.error("[v0] Failed to toggle priority:", error)
+    } finally {
+      setTogglingPriority(null)
     }
   }
 
@@ -85,7 +107,12 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
           <TableBody>
             {enquiries.map((enquiry) => (
               <TableRow key={enquiry.id}>
-                <TableCell className="font-medium">{enquiry.title}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    {enquiry.is_priority && <Star className="h-4 w-4 fill-primary text-primary" />}
+                    {enquiry.title}
+                  </div>
+                </TableCell>
                 <TableCell>
                   {enquiry.clients ? (
                     <div>
@@ -116,6 +143,23 @@ export function EnquiriesTable({ enquiries }: { enquiries: Enquiry[] }) {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePriorityToggle(enquiry.id, !!enquiry.is_priority)}
+                            disabled={togglingPriority === enquiry.id}
+                          >
+                            <Star className={`h-4 w-4 ${enquiry.is_priority ? "fill-primary text-primary" : ""}`} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {enquiry.is_priority ? "Remove from priority" : "Add to priority"}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <Button variant="ghost" size="icon" asChild>
                       <Link href={`/dashboard/enquiries/${enquiry.id}`}>
                         <Eye className="h-4 w-4" />

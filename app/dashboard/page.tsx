@@ -2,6 +2,9 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, FileText, Package, DollarSign } from "lucide-react"
+import { PriorityListButton } from "@/components/dashboard/priority-list-button"
+import { AddEnquiryFAB } from "@/components/dashboard/add-enquiry-fab"
+import { EnquiriesList } from "@/components/dashboard/enquiries-list"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -53,16 +56,26 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="animate-fade-in-up">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of your business.</p>
+      <div className="animate-fade-in-up flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of your business.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <AddEnquiryFAB />
+          <PriorityListButton />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.title} className="animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card
+              key={stat.title}
+              className="animate-scale-in shadow-card hover:shadow-card-hover transition-all duration-300"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                 <Icon className="h-4 w-4 text-muted-foreground transition-transform duration-300 hover:scale-125 hover:rotate-12" />
@@ -75,6 +88,8 @@ export default async function DashboardPage() {
           )
         })}
       </div>
+
+      <EnquiriesList />
     </div>
   )
 }

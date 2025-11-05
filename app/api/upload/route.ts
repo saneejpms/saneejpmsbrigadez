@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { google } from "googleapis"
 import { compressPdf } from "@/lib/pdf-compression"
+import { getDriveConfig, isDriveConfigured } from "@/lib/drive/config"
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Check if Google Drive is configured
-    if (!process.env.GOOGLE_SERVICE_ACCOUNT_KEY || !process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID) {
+    if (!isDriveConfigured()) {
       return NextResponse.json(
         { error: "Google Drive is not configured. Please add required environment variables." },
         { status: 500 },
@@ -35,13 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Initialize Google Drive API
-    const serviceAccountKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
-    const auth = new google.auth.GoogleAuth({
-      credentials: serviceAccountKey,
-      scopes: ["https://www.googleapis.com/auth/drive.file"],
-    })
-
+    const { auth, parentFolderId } = getDriveConfig()
     const drive = google.drive({ version: "v3", auth })
 
     // Convert file to buffer
@@ -73,7 +67,7 @@ export async function POST(request: NextRequest) {
     const driveResponse = await drive.files.create({
       requestBody: {
         name: file.name,
-        parents: [process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID],
+        parents: [parentFolderId],
       },
       media: {
         mimeType: file.type,
