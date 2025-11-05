@@ -49,7 +49,6 @@ export async function POST(request: NextRequest) {
     const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
 
     if (isPdf && originalSize > minCompressionBytes) {
-      console.log("[v0] Starting PDF compression for:", file.name)
       const compressionResult = await compressPdf(buffer, minCompressionBytes)
 
       if (compressionResult.success && compressionResult.compressedSize < originalSize) {
@@ -57,9 +56,6 @@ export async function POST(request: NextRequest) {
         wasCompressed = true
         compressionMethod = compressionResult.method
         compressedSize = compressionResult.compressedSize
-        console.log(`[v0] PDF compressed: ${(compressionResult.compressionRatio || 0).toFixed(2)}% reduction`)
-      } else {
-        console.log("[v0] Compression not effective or failed, using original file")
       }
     }
 

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { getDriveConfig } from "@/lib/drive/config"
+import { getDriveConfig, isDriveConfigured } from "@/lib/drive/config"
 import { google } from "googleapis"
 
 export async function POST(request: NextRequest) {
@@ -60,31 +60,28 @@ export async function POST(request: NextRequest) {
 
     // Try to create Drive folders if configured
     let driveFolderId: string | null = null
-    try {
-      const driveConfig = getDriveConfig()
-      const auth = new google.auth.JWT(driveConfig.auth.client_email, undefined, driveConfig.auth.private_key, [
-        "https://www.googleapis.com/auth/drive.file",
-      ])
+    if (isDriveConfigured()) {
+      try {
+        const { auth, parentFolderId } = getDriveConfig()
+        const drive = google.drive({ version: "v3", auth })
 
-      const drive = google.drive({ version: "v3", auth })
+        // Create main enquiry folder
+        const folderMetadata = {
+          name: `${enquiry_code} - ${title}`,
+          mimeType: "application/vnd.google-apps.folder",
+          parents: [parentFolderId],
+        }
 
-      // Create main enquiry folder
-      const folderMetadata = {
-        name: `${enquiry_code} - ${title}`,
-        mimeType: "application/vnd.google-apps.folder",
-        parents: [driveConfig.parentFolderId],
+        const folder = await drive.files.create({
+          requestBody: folderMetadata,
+          fields: "id",
+        })
+
+        driveFolderId = folder.data.id || null
+      } catch (driveError) {
+        console.error("[v0] Drive folder creation failed:", driveError)
+        // Don't fail the enquiry creation if Drive setup fails
       }
-
-      const folder = await drive.files.create({
-        requestBody: folderMetadata,
-        fields: "id",
-      })
-
-      driveFolderId = folder.data.id || null
-      console.log("[v0] Created Drive folder:", driveFolderId)
-    } catch (driveError) {
-      console.log("[v0] Drive folder creation skipped (not configured or error):", driveError)
-      // Don't fail the enquiry creation if Drive setup fails
     }
 
     return NextResponse.json({

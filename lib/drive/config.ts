@@ -90,21 +90,10 @@ export function getDriveHealthStatus(): DriveHealthStatus {
   }
 
   try {
-    console.log("[v0] Attempting to parse service account key...")
-    console.log("[v0] Key length:", serviceAccountKey.length)
-    console.log("[v0] First 50 chars:", serviceAccountKey.substring(0, 50))
-
-    // Try to parse the service account key
+    // Parse the service account key
     // Handle both escaped newlines (\n) and real newlines
     const keyString = serviceAccountKey.replace(/\\n/g, "\n")
-
-    console.log("[v0] After newline replacement, first 50 chars:", keyString.substring(0, 50))
-
     const serviceAccount = JSON.parse(keyString)
-
-    console.log("[v0] Successfully parsed JSON")
-    console.log("[v0] Has client_email:", !!serviceAccount.client_email)
-    console.log("[v0] Has private_key:", !!serviceAccount.private_key)
 
     if (!serviceAccount.client_email || !serviceAccount.private_key) {
       return {
@@ -117,8 +106,6 @@ export function getDriveHealthStatus(): DriveHealthStatus {
 
     return { ok: true }
   } catch (error) {
-    console.error("[v0] Failed to parse service account key:", error)
-
     let details = ""
     if (error instanceof SyntaxError) {
       details = `JSON parsing error: ${error.message}. Check if the JSON is properly formatted.`

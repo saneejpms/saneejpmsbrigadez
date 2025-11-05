@@ -153,6 +153,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* Added premium dark gradient background */
     background: radial-gradient(ellipse 80% 80% at 50% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
       linear-gradient(135deg, #010101 0%, #050505 50%, #010101 100%);
     font-family: system-ui, -apple-system, sans-serif;
@@ -162,6 +163,7 @@
   h2,
   h3,
   h4,
+  h5,
   h5,
   h6 {
     @apply font-semibold tracking-tight;
