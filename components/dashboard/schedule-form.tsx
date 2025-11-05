@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createSchedule, updateSchedule } from "@/app/actions/schedules"
+import { useToast } from "@/hooks/use-toast"
 
 type Enquiry = {
   id: string
@@ -33,6 +33,7 @@ type ScheduleFormProps = {
 
 export function ScheduleForm({ enquiries, schedule }: ScheduleFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -43,16 +44,47 @@ export function ScheduleForm({ enquiries, schedule }: ScheduleFormProps) {
 
     const formData = new FormData(e.currentTarget)
 
+    const data = {
+      enquiry_id: formData.get("enquiry_id"),
+      title: formData.get("title"),
+      description: formData.get("description"),
+      start_date: formData.get("start_date"),
+      end_date: formData.get("end_date"),
+      status: formData.get("status"),
+      priority: formData.get("priority"),
+      notes: formData.get("notes"),
+    }
+
     try {
-      if (schedule) {
-        await updateSchedule(schedule.id, formData)
-      } else {
-        await createSchedule(formData)
+      const url = schedule ? `/api/schedules/${schedule.id}` : "/api/schedules/create"
+      const method = schedule ? "PUT" : "POST"
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save schedule")
       }
+
+      toast({
+        title: "Success",
+        description: schedule ? "Schedule updated successfully" : "Schedule created successfully",
+      })
+
       router.push("/dashboard/schedules")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      const message = err instanceof Error ? err.message : "An error occurred"
+      setError(message)
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }

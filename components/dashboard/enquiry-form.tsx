@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createEnquiry, updateEnquiry } from "@/app/actions/enquiries"
+import { useToast } from "@/hooks/use-toast"
 
 type Client = {
   id: string
@@ -35,6 +35,7 @@ type EnquiryFormProps = {
 
 export function EnquiryForm({ clients, enquiry }: EnquiryFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -45,16 +46,48 @@ export function EnquiryForm({ clients, enquiry }: EnquiryFormProps) {
 
     const formData = new FormData(e.currentTarget)
 
+    const data = {
+      client_id: formData.get("client_id") === "no-client" ? null : formData.get("client_id"),
+      title: formData.get("title"),
+      description: formData.get("description"),
+      status: formData.get("status"),
+      priority: formData.get("priority"),
+      estimated_value: formData.get("estimated_value"),
+      actual_value: formData.get("actual_value"),
+      start_date: formData.get("start_date"),
+      end_date: formData.get("end_date"),
+    }
+
     try {
-      if (enquiry) {
-        await updateEnquiry(enquiry.id, formData)
-      } else {
-        await createEnquiry(formData)
+      const url = enquiry ? `/api/enquiries/${enquiry.id}` : "/api/enquiries/create"
+      const method = enquiry ? "PUT" : "POST"
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save enquiry")
       }
+
+      toast({
+        title: "Success",
+        description: enquiry ? "Enquiry updated successfully" : "Enquiry created successfully",
+      })
+
       router.push("/dashboard/enquiries")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      const message = err instanceof Error ? err.message : "An error occurred"
+      setError(message)
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }

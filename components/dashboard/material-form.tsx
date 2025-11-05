@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createMaterial, updateMaterial } from "@/app/actions/materials"
+import { useToast } from "@/hooks/use-toast"
 
 type Enquiry = {
   id: string
@@ -34,6 +34,7 @@ type MaterialFormProps = {
 
 export function MaterialForm({ enquiries, material }: MaterialFormProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(material?.quantity.toString() || "")
@@ -48,16 +49,48 @@ export function MaterialForm({ enquiries, material }: MaterialFormProps) {
 
     const formData = new FormData(e.currentTarget)
 
+    const data = {
+      enquiry_id: formData.get("enquiry_id"),
+      name: formData.get("name"),
+      description: formData.get("description"),
+      quantity: formData.get("quantity"),
+      unit: formData.get("unit"),
+      unit_price: formData.get("unit_price"),
+      supplier: formData.get("supplier"),
+      purchase_date: formData.get("purchase_date"),
+      notes: formData.get("notes"),
+    }
+
     try {
-      if (material) {
-        await updateMaterial(material.id, formData)
-      } else {
-        await createMaterial(formData)
+      const url = material ? `/api/materials/${material.id}` : "/api/materials/create"
+      const method = material ? "PUT" : "POST"
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save material")
       }
+
+      toast({
+        title: "Success",
+        description: material ? "Material updated successfully" : "Material created successfully",
+      })
+
       router.push("/dashboard/materials")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      const message = err instanceof Error ? err.message : "An error occurred"
+      setError(message)
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
