@@ -12,58 +12,7 @@ export interface DriveHealthStatus {
   details?: string
 }
 
-/**
- * Check if Google Drive is properly configured
- * @returns boolean indicating if Drive is configured
- */
-export function isDriveConfigured(): boolean {
-  return !!(process.env.GOOGLE_SERVICE_ACCOUNT_KEY && process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID)
-}
-
-/**
- * Get Drive configuration with proper validation
- * @throws Error if configuration is missing or invalid
- * @returns DriveConfig object with auth and parentFolderId
- */
-export function getDriveConfig(): DriveConfig {
-  const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY
-  const parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
-
-  if (!serviceAccountKey) {
-    throw new Error("GOOGLE_SERVICE_ACCOUNT_KEY environment variable is not set")
-  }
-
-  if (!parentFolderId) {
-    throw new Error("GOOGLE_DRIVE_PARENT_FOLDER_ID environment variable is not set")
-  }
-
-  try {
-    // Parse the service account key JSON
-    // Handle both escaped newlines (\n) and real newlines
-    const keyString = serviceAccountKey.replace(/\\n/g, "\n")
-    const serviceAccount = JSON.parse(keyString)
-
-    // Validate required fields
-    if (!serviceAccount.client_email || !serviceAccount.private_key) {
-      throw new Error("Invalid service account key: missing required fields")
-    }
-
-    // Create JWT auth client
-    const auth = new google.auth.JWT(serviceAccount.client_email, undefined, serviceAccount.private_key, [
-      "https://www.googleapis.com/auth/drive.file",
-    ])
-
-    return {
-      auth,
-      parentFolderId,
-    }
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw new Error("Invalid GOOGLE_SERVICE_ACCOUNT_KEY: JSON parsing failed")
-    }
-    throw error
-  }
-}
+// ... existing code ...
 
 /**
  * Get Drive health status without throwing errors
@@ -90,16 +39,17 @@ export function getDriveHealthStatus(): DriveHealthStatus {
   }
 
   try {
+    // <CHANGE> Enhanced parsing with better error diagnostics
     console.log("[v0] Attempting to parse service account key...")
     console.log("[v0] Key length:", serviceAccountKey.length)
     console.log("[v0] First 50 chars:", serviceAccountKey.substring(0, 50))
-
+    
     // Try to parse the service account key
     // Handle both escaped newlines (\n) and real newlines
     const keyString = serviceAccountKey.replace(/\\n/g, "\n")
-
+    
     console.log("[v0] After newline replacement, first 50 chars:", keyString.substring(0, 50))
-
+    
     const serviceAccount = JSON.parse(keyString)
 
     console.log("[v0] Successfully parsed JSON")
@@ -118,14 +68,15 @@ export function getDriveHealthStatus(): DriveHealthStatus {
     return { ok: true }
   } catch (error) {
     console.error("[v0] Failed to parse service account key:", error)
-
+    
+    // <CHANGE> Provide detailed error information
     let details = ""
     if (error instanceof SyntaxError) {
       details = `JSON parsing error: ${error.message}. Check if the JSON is properly formatted.`
     } else {
       details = error instanceof Error ? error.message : "Unknown error"
     }
-
+    
     return {
       ok: false,
       reason: "INVALID_SERVICE_ACCOUNT_KEY",
@@ -134,3 +85,5 @@ export function getDriveHealthStatus(): DriveHealthStatus {
     }
   }
 }
+</parameter>
+</invoke>
